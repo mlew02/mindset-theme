@@ -46,10 +46,17 @@ function fwd_setup() {
 		*/
 	add_theme_support( 'post-thumbnails' );
 
+	// Custom Image Crop Sizes
+	add_image_size( 'portrait-blog', 200, 250, true );
+
+	add_image_size( 'latest-blog-post', 400, 200, true );
+
 	// This theme uses wp_nav_menu() in one location.
 	register_nav_menus(
 		array(
 			'header' => esc_html__( 'Header Menu Location', 'fwd' ),
+			'footer-left' => esc_html__( 'Footer - Left Side', 'fwd' ),
+			'footer-right' => esc_html__( 'Footer - Right Side', 'fwd' ),
 		)
 	);
 
@@ -145,6 +152,17 @@ function fwd_widgets_init() {
 			'after_title'   => '</h2>',
 		)
 	);
+	register_sidebar(
+		array(
+			'name' 			=> esc_html__( 'Secondary Sidebar', 'fwd' ),
+			'id' 			=> 'sidebar-2',
+			'description'   => esc_html__( 'Add widgets here.', 'fwd' ),
+			'before_widget' => '<section id="%1$s" class="widget %2$s">',
+			'after_widget'  => '</section>',
+			'before_title'  => '<h2 class="widget-title">',
+			'after_title'   => '</h2>',
+		)
+	);
 }
 add_action( 'widgets_init', 'fwd_widgets_init' );
 
@@ -184,3 +202,32 @@ require get_template_directory() . '/inc/customizer.php';
 if ( defined( 'JETPACK__VERSION' ) ) {
 	require get_template_directory() . '/inc/jetpack.php';
 }
+
+function fwd_theme_color(){
+	echo '<meta name="name-color" content="#fff200">' ;
+}
+add_action( 'wp_head', 'fwd_theme_color', 1);
+
+function fwd_excerpt_length( $length ){
+	return 20;
+}
+add_filter( 'excerpt_length', 'fwd_excerpt_length', 999);
+
+function fwd_excerpt_more( $more ){
+	$more = '... <a href="'. esc_url(get_permalink()) .'">'. __('Continue Reading') . '</a>';
+	return $more;
+
+}
+add_filter('excerpt_more', 'fwd_excerpt_more');
+
+// Remove Block editor from pages using AFC
+function fwd_post_filter( $use_block_editor, $post ) {
+    // Add IDs to the array
+     $page_ids = array( 93, 10 );
+       if ( in_array( $post->ID, $page_ids ) ) {
+          return false;
+       } else {
+      return $use_block_editor;
+   }
+}
+add_filter( 'use_block_editor_for_post', 'fwd_post_filter', 10, 2 );
